@@ -35,7 +35,14 @@ namespace Neo.VM
         {
             if (scriptHash.Length != 20)
                 throw new ArgumentException();
-            return Emit(useTailCall ? OpCode.TAILCALL : OpCode.APPCALL, scriptHash);
+            return Emit(useTailCall ? OpCode.TAILCALL : OpCode.SAFE_APPCALL, scriptHash);
+        }
+
+        public ScriptBuilder EmitUnsafeAppCall(byte[] scriptHash)
+        {
+            if (scriptHash.Length != 20)
+                throw new ArgumentException();
+            return Emit(OpCode.UNSAFE_APPCALL, scriptHash);
         }
 
         public ScriptBuilder EmitJump(OpCode op, short offset)
