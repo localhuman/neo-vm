@@ -37,10 +37,10 @@
         JMPIFNOT = 0x64,
         CALL = 0x65,
         RET = 0x66,
-        APPCALL = 0x67,
+        UNSAFE_APPCALL = 0x67,
         SYSCALL = 0x68,
         TAILCALL = 0x69,
-
+        SAFE_APPCALL = 0x70,
 
         // Stack
         DUPFROMALTSTACK = 0x6A,

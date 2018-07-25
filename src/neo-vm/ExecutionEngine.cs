@@ -15,6 +15,9 @@ namespace Neo.VM
         private readonly IScriptTable table;
         private readonly Dictionary<byte[], HashSet<uint>> break_points = new Dictionary<byte[], HashSet<uint>>(new HashComparer());
 
+        private byte[] currentScriptHash;
+        private bool safeMode = false;
+
         public IScriptContainer ScriptContainer { get; }
         public ICrypto Crypto { get; }
         public InteropService Service { get; }
@@ -154,7 +157,8 @@ namespace Neo.VM
                         if (InvocationStack.Count == 0)
                             State |= VMState.HALT;
                         break;
-                    case OpCode.APPCALL:
+                    case OpCode.SAFE_APPCALL:
+                    case OpCode.UNSAFE_APPCALL:
                     case OpCode.TAILCALL:
                         {
                             if (table == null)
@@ -174,6 +178,18 @@ namespace Neo.VM
                             {
                                 State |= VMState.FAULT;
                                 return;
+                            }
+                            
+                            if(safeMode && script_hash != currentScriptHash)
+                            {
+                                State |= VMState.FAULT;
+                                return;
+                            }
+
+                            if(opcode == OpCode.SAFE_APPCALL)
+                            {
+                                safeMode = true;
+                                currentScriptHash = script_hash;
                             }
 
                             ExecutionContext context_new = LoadScript(script);
